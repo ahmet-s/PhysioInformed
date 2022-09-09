@@ -1,0 +1,72 @@
+LIST _IS_OSCE = GrInt, CoC
+
+
+
+==P_IS_0==
+~speaker = Patient
+- Hi, Doctor.
+->D_IS_0
+
+==D_IS_0==
+* [Hi! As a treatment... (Recommend a treatment)]
+
+~RecommendTreatment()
+~patientDiversionIndex = 0
+->DONE
+* [Let's talk about... (Talk about treatment options)]
+~speaker = Doctor
+Let's talk about treatment options. We have some options at hand and I want to go through them together with you.
+~patientDiversionIndex = 1
+->P_IS_1
+* [Hi! So, you are here... (Get context of consultation)]
+~speaker = Doctor
+~ _IS_OSCE += (CoC)
+Hi! So, you are here today for talking about your shoulder pain, is that correct?
+~transition = "context"
+~patientDiversionIndex = 2
+->P_IS_1
+* [Hi! Welcome... (Welcome patient)]
+~speaker = Doctor
+~ _IS_OSCE += (GrInt)
+Hi! Welcome Mr. Johnson! I am Doctor Carol Rudolph. How are you today?
+~transition = "greet"
+~patientDiversionIndex = 3
+->P_IS_1
+
+==P_IS_1==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+~ recommendedTreatment = true
+Okay, that was fast. Maybe, I should see another doctor. Thank you!
+~FinalizeSession()
+->DONE
+- patientDiversionIndex == 1:
+I guess you know all about me! Okay Doctor, if you say so.
+~GoToGTO()
+->DONE
+- patientDiversionIndex == 2:
+Correct. Doctorr ... Rudolph I guess, right?. I have been having these pains for a while and they are worsening.
+~storyFlow = IRfC
+->D_IRfC_0
+- patientDiversionIndex == 3:
+Fine, thank you Doctor. Nice to meet you.
+~storyFlow = IRfC
+->D_IRfC_0
+}
+
+==P_IS_2==
+~speaker = Patient
+- Correct. Doctor. I have been having these pains for a while and they are worsening.
+~storyFlow = IRfC
+->D_IRfC_0
+
+
+
+
+
+
+
+
+
+

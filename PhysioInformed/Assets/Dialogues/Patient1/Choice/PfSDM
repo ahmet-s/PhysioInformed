@@ -1,0 +1,124 @@
+LIST _PfSDM_OSCE = Outline, EstabPlan, AskPrefQues
+
+
+==D_PfSDM_0==
+* [Okay then. As a treatment... (Recommend a treatment)]
+
+~RecommendTreatment()
+~patientDiversionIndex = 0
+->DONE
+* [Good. In the rest of the time... (Talk about treatment options)]
+~speaker = Doctor
+~ _PfSDM_OSCE += (EstabPlan)
+Good. In the rest of the time, I want to explain the option we have for your situation. We'll briefly go through the each option with their possible advantages and disadvantages for you. How does it sound to you?
+~patientDiversionIndex = 1
+->P_PfSDM_0
+* [Good. Now, I want to explain... (Talk about treatment options and invite patient for involvement) /**treatment options...but there's no best option that goes for everyone...**/]
+~speaker = Doctor
+~ _PfSDM_OSCE += (EstabPlan, Outline)
+Good. Now, I want to explain treatment options we have for your situation but there is no best option that goes for everyone. We'll briefly go through the each option with their possible advantages and disadvantages for you. So, if you can reflect on them, we can find the best one that suits you. How does it sound to you?
+~patientDiversionIndex = 2
+->P_PfSDM_0
+* {transition == "D_PfSDM_0"} [Okay. So... (Summarize the situation)]
+~speaker = Doctor
+~storyFlow = IRfC
+~ playerStrConsul++
+Okay. So, if we sum up the situation, your pain started 6 months ago{focusTopicNames ? _Onset: and we don't know the exact reason}. {focusTopicNames ? _Radiation: No radiation from shoulder.} It's getting worse /**ExerRelFac**/especially when lying on it or lifting. /**WorkOut**/Quitted an already limited working out routine due to a previous back injury{focusTopicNames ? _MedHist: but no other health problems or medication used}. Finally you {focusTopicNames ? _SocHist:live alone and} worried the situation can interfere with your work{focusTopicNames ? _WorkCond: in which you don't stress your shoulder except driving long hours}.
+->P_IRfC_2
+
+
+==P_PfSDM_0==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+~ recommendedTreatment = true
+Okay, Doctor. Thank you for the quick help.
+~FinalizeSession()
+->DONE
+- patientDiversionIndex == 1:
+I understand but generally, doctors give a treatment after the examination. Can't you give one that suits my condition?
+->D_PfSDM_1A
+- patientDiversionIndex == 2:
+I see. I didn't expect that but if it's the case, I am listening.
+->D_PfSDM_1B
+}
+
+==D_PfSDM_1A==
+* [Sure I can! Okay then... (Recommend a treatment)]
+
+~speaker = Doctor
+~recommendInPfSDM = true
+~RecommendTreatment()
+~patientDiversionIndex = 0
+->DONE
+* [Sure sure but you'll understand when we start... (Proceed to next step)]
+~speaker = Doctor
+Sure sure but you'll understand when we start discussing. Let's start and you'll see.
+~patientDiversionIndex = 1
+->P_PfSDM_1A
+* [Sure I can give one but... (Explain more)]
+~speaker = Doctor
+~ _PfSDM_OSCE += (Outline)
+Sure I can give one but there is no best option that goes for everyone. That way we can find the best one both for your situation and your concerns and preferences. However, I want you to reflect on the options; so, we can understand.
+~patientDiversionIndex = 2
+->P_PfSDM_1A
+
+==D_PfSDM_1B==
+* [Okay then, let's start...]
+~speaker = Doctor
+Okay then, let's start with explaining and you'll understand it better during the process.
+~patientDiversionIndex = 0
+->P_PfSDM_1B
+* [Okay then, do you have... (Ask if have any questions)]
+~speaker = Doctor
+~ _PfSDM_OSCE += (AskPrefQues)
+Okay then, do you have any specific questions before beginning or any preferences you want to state?
+~patientDiversionIndex = 1
+->P_PfSDM_1B
+
+
+==P_PfSDM_1A==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+~ recommendedTreatment = true
+So, you were joking before I guess. Thank you.
+~FinalizeSession()
+->DONE
+- patientDiversionIndex == 1:
+Okay, I guess I have to!
+~GoToGTO()
+->DONE
+- patientDiversionIndex == 2:
+I see. I didn't expect that but if it's the case, I am listening.
+~GoToGTO()
+->DONE
+}
+
+==P_PfSDM_1B==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+I see. I didn't expect that but if it's the case, I am listening.
+~GoToGTO()
+->DONE
+- patientDiversionIndex == 1:
+I don't know the process really; so, no questions but as I said I rather not leave my work too long.
+->D_PfSDM_2
+}
+
+==D_PfSDM_2==
+~speaker = Doctor
+- Sure, I will keep that in mind. So, let's start.
+~GoToGTO()
+->DONE
+
+
+
+
+
+
+
+
+
+

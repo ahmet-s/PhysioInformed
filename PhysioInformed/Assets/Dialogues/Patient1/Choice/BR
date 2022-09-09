@@ -1,0 +1,49 @@
+LIST _BR_OSCE = ShowInt, EstabICE
+
+
+==D_BR_0==
+* [Okay then. As a treatment... (Recommend a treatment)]
+
+~RecommendTreatment()
+~patientDiversionIndex = 0
+->DONE
+* [Thank you. Let's talk about...(Talk about treatment options)]
+~speaker = Doctor
+Thank you for the answers. Let's talk about treatment options. We have some options at hand and I want to go through them together with you.
+~patientDiversionIndex = 1
+->P_BR_0
+* [Thank you. Do you have any... (Ask about expectations)]
+~speaker = Doctor
+~ _BR_OSCE += (EstabICE, ShowInt)
+Thank you for the answers. I understand the situation and I'll try my best. Do you have any particular expectations from me today or any concerns or ideas? 
+~patientDiversionIndex = 2
+->P_BR_0
+* {transition == "D_BR_0"} [Okay. So... (summarize the situation)]
+~speaker = Doctor
+~ playerStrConsul++
+~storyFlow = IRfC
+Okay. So, if we sum up the situation, your pain started 6 months ago{focusTopicNames ? _Onset: and we don't know the exact reason}. {focusTopicNames ? _Radiation: No radiation from shoulder.} It's getting worse /**ExerRelFac**/especially when lying on it or lifting. /**WorkOut**/Quitted an already limited working out routine due to a previous back injury{focusTopicNames ? _MedHist: but no other health problems or medication used}. Finally you {focusTopicNames ? _SocHist:live alone and} worried the situation can interfere with your work{focusTopicNames ? _WorkCond: in which you don't stress your shoulder except driving long hours}.
+->P_IRfC_2
+
+==P_BR_0==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+~ recommendedTreatment = true
+Okay, Doctor. Thank you for the quick help.
+~FinalizeSession()
+->DONE
+- patientDiversionIndex == 1:
+I thought you would recommend a treatment but sure, if you say so. 
+~GoToGTO()
+->DONE
+- patientDiversionIndex == 2:
+Thank you for your understanding Doctor. I'm really concerned about my work situation. I don't know what treatment you'll give but I rather not leave work too long if possible.
+~storyFlow = PfSDM
+->D_PfSDM_0
+}
+
+
+
+
+

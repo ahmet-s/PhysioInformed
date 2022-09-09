@@ -1,0 +1,203 @@
+VAR avoidJar_Sur = 1
+VAR sufInfo_Sur = 2
+VAR applyICE_Sur = 1
+
+VAR pointTakenSur = false
+
+////////////////***********Surgery
+==D_Sur_T_Exp==
+~keypointsCompleted = false
+~DocTextView(true)
+~keypoints -= (PIAT, PEDT, RTfT)
+{
+- !pointTakenSur:
+~TotalOSCEPoints(avoidJar_Sur, sufInfo_Sur, applyICE_Sur)
+~pointTakenSur = true
+}
+~speaker = Doctor
+{
+- treatmentOrder == 0:
+Let's start with <>
+- treatmentOrder == 1:
+Another option is <>
+- treatmentOrder == 2:
+Final option is <>
+}
+surgery. Here, the operation depends on the damage on the shoulder. If it's severely damaged, we graft a tissue from another part of your body and replace
+{
+- choiceStatus == 0:
+<> ...
+->D_Sur_C_Exp
+- choiceStatus == 1:
+<> the damaged tendons in the rotator cuff with an open surgery. Otherwise, we remove or repair the inflamed tendons with an arthroscopic surgery.
+->P_Sur_C_Exp
+- choiceStatus == 2:
+<> the damaged part with an open surgery. Otherwise, we remove the inflamed parts or repair them with a mini operation.
+->P_Sur_C_Exp
+}
+
+==D_Sur_C_Exp==
+* [Explain with referencing rotator cuff and bursa]
+~choiceStatus = 1
+->D_Sur_T_Exp
+* [Explain in general]
+~ finalAvoidJar++
+~choiceStatus = 2
+->D_Sur_T_Exp
+
+==P_Sur_C_Exp==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Surgery seems complicated and a long process to be away from work and daily life. I didn't think such a big procedure would be necessary.
+- choiceStatus == 2:
+I see but I'm guessing this requires a lot of time away from work and daily life. I didn't think such a big procedure would be necessary.
+} 
+~choiceStatus = 0
+~StartKeypoints()
+->DONE
+
+
+/////******PosImpAfterTreat
+
+==D_Sur_T_PIAT==
+~speaker = Doctor
+- {keypoints !? PEDT && keypoints !? RTfT: We didn't choose the treatment yet and can decide that together.}  For the improvement in pain and functional ability, we expect a moderate progress. 
+{
+- choiceStatus == 0:
+<> ...
+->D_Sur_C_PIAT
+- choiceStatus == 1:
+->P_Sur_C_PIAT
+- choiceStatus == 2:
+<> So you may still have some pain or functional complaints while doing certain movements with your arms especially for a while after surgery.
+->P_Sur_C_PIAT
+}
+
+==D_Sur_C_PIAT==
+* [Continue to next keypoint or treatment]
+
+~choiceStatus = 1
+->D_Sur_T_PIAT
+* [Explain more]
+~ finalSufInfo++
+~choiceStatus = 2
+->D_Sur_T_PIAT
+
+==P_Sur_C_PIAT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+I didn't understand what moderate implies exactly but before anything, I want to get rid of these pains and limitations. if possible.
+- choiceStatus == 2:
+Then, is this really a good option? Before anything, I want to get rid of these pains and limitations. if possible.
+}
+~choiceStatus = 0
+~keypoints += (PIAT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+/////******PosEffDuringTreat
+
+==D_Sur_T_PEDT==
+~speaker = Doctor
+- {keypoints !? PEDT && keypoints !? PIAT: We didn't choose the treatment yet and can decide that together.} As you might guess, surgery is a relatively heavy operation. It's highly probable that there will be discomforts caused by the treatment and some noticeable side effects.
+{
+- choiceStatus == 0:
+<> ...
+->D_Sur_C_PEDT
+- choiceStatus == 1:
+->P_Sur_C_PEDT
+- choiceStatus == 2:
+<> You may need to take leave from work for 6 to 8 weeks for that time and be careful for a while after that.
+->P_Sur_C_PEDT
+}
+
+==D_Sur_C_PEDT==
+* [Continue to next keypoint or treatment]
+~choiceStatus = 1
+->D_Sur_T_PEDT
+* [Explain more]
+~ finalSufInfo++
+~choiceStatus = 2
+->D_Sur_T_PEDT
+
+==P_Sur_C_PEDT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+I can take a leave with doctor's notice if it's not for months. For the effects, I can endure them but it depends on the results I'll get.
+- choiceStatus == 2:
+I see. I think I can take leave that much with a doctor's notice. I can guess the effects but enduring them depends on the results I'll get.
+}
+~choiceStatus = 0
+~keypoints += (PEDT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+
+/////******ReqTimeforTreat
+
+==D_Sur_T_RTfT==
+~speaker = Doctor
+- {keypoints !? PEDT && keypoints !? PIAT: We didn't choose the treatment yet and can decide that together.} I need to state that it may take upto 6 months till the your place comes to take the operation and recovery can take another 6 months. Though, the operation will be completed in a day.
+{
+- choiceStatus == 0:
+<> ...
+->D_Sur_C_RTfT
+- choiceStatus == 1:
+<> So, overall, it's a long process.
+->P_Sur_C_RTfT
+- choiceStatus == 2:
+<> Considering your concerns about your job, that may be a lot of time waiting for treatment and recovery. Is that right?
+->P_Sur_C_RTfT
+}
+
+==D_Sur_C_RTfT==
+* [Explain in general]
+~choiceStatus = 1
+->D_Sur_T_RTfT
+* [Explain with considering patient's work]
+
+~ finalApplyICE++
+~choiceStatus = 2
+->D_Sur_T_RTfT
+
+==P_Sur_C_RTfT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Yes and I'll have to work in this situation by this time and I guess even after the operation if it takes that long to recover since I can't take 6 months of leave.
+- choiceStatus == 2:
+Yes, I'll have to wait in this situation and it takes too long to recover. Overall, nearly a year to complete.
+}
+~choiceStatus = 0
+~keypoints += (RTfT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+

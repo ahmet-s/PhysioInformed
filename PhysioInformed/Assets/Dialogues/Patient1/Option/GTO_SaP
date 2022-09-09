@@ -1,0 +1,198 @@
+VAR avoidJar_SaP = 1
+VAR sufInfo_SaP = 2
+VAR applyICE_SaP = 1
+
+VAR pointTakenSaP = false
+
+////////////////***********Surgery and Physiotherapy
+==D_SaP_T_Exp==
+~keypointsCompleted = false
+~DocTextView(true)
+~keypoints -= (PIAT, PEDT, RTfT)
+{
+- !pointTakenSaP:
+~TotalOSCEPoints(avoidJar_SaP, sufInfo_SaP, applyICE_SaP)
+~pointTakenSaP = true
+}
+~speaker = Doctor
+{
+- treatmentOrder == 0:
+Let's start with <>
+- treatmentOrder == 1:
+Another option is <>
+- treatmentOrder == 2:
+Final option is <>
+}
+surgery and physiotherapy together. Here, after we repaired or replaced the damaged tissue by surgery, you have physical therapy.
+{
+- choiceStatus == 0:
+<> ...
+->D_SaP_C_Exp
+- choiceStatus == 1:
+->P_SaP_C_Exp
+- choiceStatus == 2:
+<> While surgery helps to take away the main problem , therapy aims to pain management and strengthening the muscles in your shoulder.
+->P_SaP_C_Exp
+}
+
+==D_SaP_C_Exp==
+* [Continue to next keypoint or treatment]
+~choiceStatus = 1
+->D_SaP_T_Exp
+* [Explain more]
+~ finalSufInfo++
+~choiceStatus = 2
+->D_SaP_T_Exp
+
+==P_SaP_C_Exp==
+~speaker = Patient
+{
+- choiceStatus == 1:
+I see, only seems like long process.
+- choiceStatus == 2:
+Seems like a solid plan but a long process.
+}
+~choiceStatus = 0
+~StartKeypoints()
+->DONE
+
+
+/////******PosImpAfterTreat
+
+==D_SaP_T_PIAT==
+~speaker = Doctor
+- This option provides really promising results for both your pains and functional limitations.
+{
+- choiceStatus == 0:
+<> ...
+->D_SaP_C_PIAT
+- choiceStatus == 1:
+<> Surgery will heal the inflamation in bursa and tendinosis. Therapy will provide managing the pain caused to your rotator cuff by surgery and will strengthen the tendons.
+->P_SaP_C_PIAT
+- choiceStatus == 2:
+<> The inflamation and damage on the shoulder will taken care of with surgery. Therapy will provide managing pain that may come with surgery and more strong muscles.
+->P_SaP_C_PIAT
+}
+
+==D_SaP_C_PIAT==
+* [Explain with referencing rotator cuff and bursa]
+~choiceStatus = 1
+->D_SaP_T_PIAT
+* [Explain in general]
+~ finalAvoidJar++
+~choiceStatus = 2
+->D_SaP_T_PIAT
+
+==P_SaP_C_PIAT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Okay, so as I understand, the problem will be dealt with which I want the most but I am guessing it would be a long process.
+- choiceStatus == 2:
+That's sounds really good. That's what I really wanted but I am guessing it would be a long process.
+}
+~choiceStatus = 0
+~keypoints += (PIAT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+/////******PosEffDuringTreat
+
+==D_SaP_T_PEDT==
+~speaker = Doctor
+- There will be some negative effects of this treatment. There may also be some moderate side effects of the surgery. It will also be a discomforting process overall, especially with surgery.
+{
+- choiceStatus == 0:
+<> ...
+->D_SaP_C_PEDT
+- choiceStatus == 1:
+->P_SaP_C_PEDT
+- choiceStatus == 2:
+<> However, that's why therapy aims pain management and after a while starting it, you'll get rid of these which makes important the regular attentance to therapy.
+->P_SaP_C_PEDT
+}
+
+==D_SaP_C_PEDT==
+* [Continue to next keypoint or treatment]
+~choiceStatus = 1
+->D_SaP_T_PEDT
+* [Explain more]
+~ finalSufInfo++
+~choiceStatus = 2
+->D_SaP_T_PEDT
+
+==P_SaP_C_PEDT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+I see though that's relevant for all options I guess.
+- choiceStatus == 2:
+I understand. It's a hard process to follow overall, although the results are appealing.
+}
+~choiceStatus = 0
+~keypoints += (PEDT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+
+/////******ReqTimeforTreat
+
+==D_SaP_T_RTfT==
+~speaker = Doctor
+- {keypoints !? PIAT && keypoints !? PEDT: Yes,} {keypoints ? PIAT: Though as you guessed,} it's a long process to complete. First of all, you may wait 6 months to get a place for the treatment and 3 months needed to complete treatment with once or twice therapy in a week. The total recovery could also take 6 months.
+{
+- choiceStatus == 0:
+<> ...
+->D_SaP_C_RTfT
+- choiceStatus == 1:
+<> Overall, it will require long rests and commitment.
+->P_SaP_C_RTfT
+- choiceStatus == 2:
+<> Overall, you may need to take long leaves from work and be around for the therapy for a time. 
+->P_SaP_C_RTfT
+}
+
+==D_SaP_C_RTfT==
+* [Explain in general]
+~choiceStatus = 1
+->D_SaP_T_RTfT
+* [Explain with considering patient's work]
+~ finalApplyICE++
+~choiceStatus = 2
+->D_SaP_T_RTfT
+
+==P_SaP_C_RTfT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Although it's a good option, I don't know if I can prove that with my work. Taking leave okay but I go out of town and can not be here every week after taking leave.
+- choiceStatus == 2:
+Although it's a good option, I don't know if I can provide that. Taking leave okay but I may be not around every week with work.
+}
+~choiceStatus = 0
+~keypoints += (RTfT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}

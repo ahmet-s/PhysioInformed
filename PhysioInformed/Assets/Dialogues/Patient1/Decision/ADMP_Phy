@@ -1,0 +1,69 @@
+//*************************   PHYSIOTHERAPY  *************
+
+LIST negotiatingPhy = ConsultPhy, SharePhy, ExplorePhy
+
+==D_Phy==
+{
+- !preparedTreatments: 
+~TreatmentValues()
+~preparedTreatments = true
+}
+* [Ask patient's thought for the option]
+~speaker = Doctor
+~negotiatingPhy += (ConsultPhy)
+~_ADMP_OSCEPoints += (Consult)
+{LIST_COUNT(negotiatingPhy) == 2 && negotiatingPhy ? SharePhy && lastTreatment == "Phy":If we both agree. }What do you think about physiotherapy option?
+~patientDiversionIndex = 0
+->P_Phy
+* [Share your medical view for the option]
+~speaker = Doctor
+~negotiatingPhy += (SharePhy)
+~_ADMP_OSCEPoints += (Share)
+{lastTreatment != "Phy":Also, f|F}rom medical perspective, physiotherapy is {worstTreatment != Phy:one of the best options|the worst option} you can take. It's effective on the pain and has moderate improvements on functionality{worstTreatment != Phy:. The therapies you'll get during can help your situation.| but compared to {TreatmentFullNames(bestTreatment)}, it may not be the most suitable for your situation.}
+~patientDiversionIndex = 1
+->P_Phy
+* [Explore pros and cons of the option]
+~speaker = Doctor
+~negotiatingPhy += (ExplorePhy)
+~_ADMP_OSCEPoints += (Explore)
+{LIST_COUNT(negotiatingPhy) == 2 && negotiatingPhy ? SharePhy && lastTreatment == "Phy":If we both agree. }If we look at pros and cons of physiotherapy, it is good for the pain{worstTreatment != Phy:, can be in functionality} and has no side effects to worry. Though, it can be discomforting{worstTreatment == Phy: and there are better options for functional improvements}. Also, it requires frequent sessions for 3 months.
+~patientDiversionIndex = 2
+->P_Phy
+
+==P_Phy==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+It looks like a good option as you told but I'm not sure about the frequency of the sessions. It wouldn't be helpful I guess if don't attent every sessions.
+- patientDiversionIndex == 1:
+I see. So, {worstTreatment != Phy:you can recommend it.|you also don't recommend it as I'm not in favor.}
+- patientDiversionIndex == 2:
+Yes, it's a little bit demanding option.  
+}
+{
+- LIST_COUNT(negotiatingPhy) == 3:
+~treatmentsToNegotiate--
+->DONE
+- else:
+~lastTreatment = "Phy"
+->D_Phy
+}
+
+==D_Phy_Eliminate==
+~speaker = Doctor
+- Okay. physiotherapy doesn't suit your expectations especially with it's continuing sessions. We can choose another one. Let's eliminate this.
+->P_Eliminate
+
+
+
+==D_Phy_Prescribe==
+~speaker = Doctor
+- Okay. Considering your situation, though it's some drawbacks for you, I believe physiotherapy will provide you to best outcome. So, you can take this as a treatment.
+~lastTreatment = "Phy"
+~prescribedTreatment = Prescription(Phy)
+->P_Prescribe
+
+
+
+
+

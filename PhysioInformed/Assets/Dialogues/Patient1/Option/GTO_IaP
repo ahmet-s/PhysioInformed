@@ -1,0 +1,199 @@
+VAR avoidJar_IaP = 1
+VAR sufInfo_IaP = 1
+VAR applyICE_IaP = 2
+
+VAR pointTakenIaP = false
+
+////////////////***********Injection and Physiotherapy
+==D_IaP_T_Exp==
+~keypointsCompleted = false
+~DocTextView(true)
+~keypoints -= (PIAT, PEDT, RTfT)
+{
+- !pointTakenIaP:
+~TotalOSCEPoints(avoidJar_IaP, sufInfo_IaP, applyICE_IaP)
+~pointTakenIaP = true
+}
+~speaker = Doctor
+{
+- treatmentOrder == 0:
+Let's start with <>
+- treatmentOrder == 1:
+Another option is <>
+- treatmentOrder == 2:
+Final option is <>
+}
+injection and physiotherapy together. Here, while
+{
+- choiceStatus == 0:
+<> ...
+->D_IaP_C_Exp
+- choiceStatus == 1:
+<> injection helps to reduce inflamation in bursa and pain, therapy afterwards helps for your tendinosis.
+->P_IaP_C_Exp
+- choiceStatus == 2:
+<> injection helps to reduce inflamation an pain, therapy afterwards helps you to strengthen your muscles. 
+->P_IaP_C_Exp
+}
+
+==D_IaP_C_Exp==
+* [Explain with referencing tendinosis and bursa]
+~choiceStatus = 1
+->D_IaP_T_Exp
+* [Explain in general]
+~ finalAvoidJar++
+~choiceStatus = 2
+->D_IaP_T_Exp
+
+==P_IaP_C_Exp==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Looks like good for my tendinosis!
+- choiceStatus == 2:
+Looks like a good option.
+}
+~choiceStatus = 0
+~StartKeypoints()
+->DONE
+
+
+/////******PosImpAfterTreat
+
+==D_IaP_T_PIAT==
+~speaker = Doctor
+- This option provides really promising results for both your pains and functional limitations and can provide significant decrease.
+{
+- choiceStatus == 0:
+<> ...
+->D_IaP_C_PIAT
+- choiceStatus == 1:
+->P_IaP_C_PIAT
+- choiceStatus == 2:
+<> While injection's effects may be limited on its own, therapy can provide more lasting effects together with it.
+->P_IaP_C_PIAT
+}
+
+==D_IaP_C_PIAT==
+* [Continue to next keypoint or treatment]
+~choiceStatus = 1
+->D_IaP_T_PIAT
+* [Explain more]
+~ finalSufInfo++
+~choiceStatus = 2
+->D_IaP_T_PIAT
+
+==P_IaP_C_PIAT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+I understand. If you say together better, that sounds good but I guess therapy can require long commitment.
+- choiceStatus == 2:
+This seems like what I've been looking for in terms of it's outcome.
+}
+~choiceStatus = 0
+~keypoints += (PIAT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+/////******PosEffDuringTreat
+
+==D_IaP_T_PEDT==
+~speaker = Doctor
+- Both treatments in this option doesn't have noticable side effects. However, physiotherapy may create some discomfort during the process.
+{
+- choiceStatus == 0:
+<> ...
+->D_IaP_C_PEDT
+- choiceStatus == 1:
+<> However, it will get better as you get use to and make progress with your situation during the process.
+->P_IaP_C_PEDT
+- choiceStatus == 2:
+<> However, that wouldn't affect your life out of therapy, especially, if you concern about working during the process.
+->P_IaP_C_PEDT
+}
+
+==D_IaP_C_PEDT==
+* [Explain in general]
+~choiceStatus = 1
+->D_IaP_T_PEDT
+* [Explain with considering patient's work]
+~ finalApplyICE++
+~choiceStatus = 2
+->D_IaP_T_PEDT
+
+==P_IaP_C_PEDT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Okay, I hope it won't make disruptions while working.
+- choiceStatus == 2:
+Good to hear. That would concern me.
+}
+~choiceStatus = 0
+~keypoints += (PEDT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+
+/////******ReqTimeforTreat
+
+==D_IaP_T_RTfT==
+~speaker = Doctor
+- I can say, though, it's a relatively long process. There may be a waiting time to get treatment as 1 and half months. Injection is done in a day but therapy requires 3 months attendace for once or twice a week. The overall recovery can take about 4-5 months.
+{
+- choiceStatus == 0:
+<> ...
+->D_IaP_C_RTfT
+- choiceStatus == 1:
+<> It's a good option with providing effective results, though the process is long to complete.
+->P_IaP_C_RTfT
+- choiceStatus == 2:
+<> It's good option though, if therapy attendance won't create a problem with your work schedule as lorry driver. 
+->P_IaP_C_RTfT
+}
+
+==D_IaP_C_RTfT==
+* [Explain in general]
+~choiceStatus = 1
+->D_IaP_T_RTfT
+* [Explain with considering patient's work]
+~ finalApplyICE++
+~choiceStatus = 2
+->D_IaP_T_RTfT
+
+==P_IaP_C_RTfT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Yes, that makes me worry if I can be in town to attend therapy sessions every week. Otherwise, it sounds good as you said.
+- choiceStatus == 2:
+Yes, that makes me think about it but it sounds good as you said.
+}
+~choiceStatus = 0
+~keypoints += (RTfT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}

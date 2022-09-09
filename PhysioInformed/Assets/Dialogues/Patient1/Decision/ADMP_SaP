@@ -1,0 +1,67 @@
+//***********************   SURGERY AND PHYSIO  *************
+
+LIST negotiatingSaP = ConsultSaP, ShareSaP, ExploreSaP
+
+==D_SaP==
+{
+- !preparedTreatments: 
+~TreatmentValues()
+~preparedTreatments = true
+}
+* [Ask patient's thought for the option]
+~speaker = Doctor
+~negotiatingSaP += (ConsultSaP)
+~_ADMP_OSCEPoints += (Consult)
+{LIST_COUNT(negotiatingSaP) > 1 && lastTreatment == "SaP":So, you think considering another one if possible?|What do you think about surgery and physiotherapy options together?}
+~patientDiversionIndex = 0
+->P_SaP
+* [Share your medical view for the option]
+~speaker = Doctor   
+~negotiatingSaP += (ShareSaP)
+~_ADMP_OSCEPoints += (Share)
+{lastTreatment != "SaP":Whereas, i|I}n my opinion, {bestTreatment == SaP:though surgery may be unnecessary on its own, together with therapy, I think this option is the best among other treatments for what it provides.|{worstTreatment == SaP: though surgery with physiotherapy promises good results, with the other options we have, surgery may still be unnecessary.|though surgery may be unnecessary on its own, together with therapy for what it provides, we should consider this as an option.} } 
+~patientDiversionIndex = 1
+->P_SaP
+* [Explore pros and cons of the option]
+~speaker = Doctor
+~negotiatingSaP += (ExploreSaP)
+~_ADMP_OSCEPoints += (Explore)
+{LIST_COUNT(negotiatingSaP) >= 2 && lastTreatment == "SaP":To be sure while considering, a|A}s the pros of surgery and physiotherapy, you can get very good improvements on your pain and functional situation but it may have moderate side effects while causing discomforts highly. It's also a long process to go and wait for taking it.
+~patientDiversionIndex = 2
+->P_SaP
+
+==P_SaP==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+Both treatments own their own aren't very appealing for me{bestTreatment == SaP: but for the other options, depends on what you suggest and their outcomes for my pain and movement constraints}.
+- patientDiversionIndex == 1:
+I understand the results but {bestTreatment == SaP:I can choose another one, if you would suggest the other one can provide similar results.|{TreatmentFullNames(bestTreatment)} seems an easier procedure as I remember providing better results.}
+- patientDiversionIndex == 2:
+Results are good but there are too many drawbacks. {bestTreatment != SaP:I can choose another one, if it's not that bad.}
+}
+{
+- LIST_COUNT(negotiatingSaP) == 3:
+~treatmentsToNegotiate--
+->DONE
+- else:
+~lastTreatment = "SaP"
+->D_SaP
+}
+
+==D_SaP_Eliminate==
+~speaker = Doctor
+- Okay. surgery with physiotherapy doesn't suit your expectations though it provides good results we can choose another one. Let's eliminate this.
+->P_Eliminate
+
+
+
+==D_SaP_Prescribe==
+~speaker = Doctor
+- Okay. Considering your situation, I believe surgery with physiotherapy will provide you to best outcome. So, you can take this as a treatment.
+~lastTreatment = "SaP"
+~prescribedTreatment = Prescription(SaP)
+->P_Prescribe
+
+
+

@@ -1,0 +1,199 @@
+VAR avoidJar_WaS = 2
+VAR sufInfo_WaS = 1
+VAR applyICE_WaS = 1
+
+VAR pointTakenWaS = false
+
+////////////////***********Wait and See
+==D_WaS_T_Exp==
+~keypointsCompleted = false
+~DocTextView(true)
+~keypoints -= (PIAT, PEDT, RTfT)
+{
+- !pointTakenWaS:
+~TotalOSCEPoints(avoidJar_WaS, sufInfo_WaS, applyICE_WaS)
+~pointTakenWaS = true
+}
+~speaker = Doctor
+{
+- treatmentOrder == 0:
+Let's start with <>
+- treatmentOrder == 1:
+Another option is <>
+- treatmentOrder == 2:
+Final option is <>
+}
+wait and see. Sometimes, our body can handle the complaints we have in time. So, it may be good to wait and observe for a while if the problem can be managed without an intervention. In your case,
+{
+- choiceStatus == 0:
+<> ...
+->D_WaS_C_Exp
+- choiceStatus == 1:
+<> the inflamation in bursa can reduce and the tears in tendons of rotator cuff can repair itself but you need to be careful in the mean time.
+->P_WaS_C_Exp
+- choiceStatus == 2:
+<> the inflamation can reduce and your body can repair the damage in your shoulder but you need to be careful in the mean time.
+->P_WaS_C_Exp
+}
+
+==D_WaS_C_Exp==
+* [Explain with referencing rotator cuff and bursa]
+~choiceStatus = 1
+->D_WaS_T_Exp
+* [Explain in general]
+~ finalAvoidJar++
+~choiceStatus = 2
+->D_WaS_T_Exp
+
+==P_WaS_C_Exp==
+~speaker = Patient
+{
+- choiceStatus == 1:
+So, you mean my body can manage it but it's been already 6 months and it's only got worse. That doesn't sound good to me.
+- choiceStatus == 2:
+I understand but it's been already 6 months. That doesn't sound good to me.
+} 
+~choiceStatus = 0
+~StartKeypoints()
+->DONE
+
+
+/////******PosImpAfterTreat
+
+==D_WaS_T_PIAT==
+~speaker = Doctor
+- For the improvement you'll get, it may be the same for both pain and functional situation but also possible to see a moderate improvement, in your situation.
+{
+- choiceStatus == 0:
+<> ...
+->D_WaS_C_PIAT
+- choiceStatus == 1:
+->P_WaS_C_PIAT
+- choiceStatus == 2:
+<> Since you inhibited from gym, if you be careful and observant with your movements, and make simple exercises for your shoulder, it may improve.
+->P_WaS_C_PIAT
+}
+
+==D_WaS_C_PIAT==
+* [Continue to next keypoint or treatment]
+~choiceStatus = 1
+->D_WaS_T_PIAT
+* [Explain more]
+~ finalSufInfo++
+~choiceStatus = 2
+->D_WaS_T_PIAT
+
+==P_WaS_C_PIAT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Okay but the possibility of staying in the same condition without doing nothing is not appealing at all.  I came here to get an improvement in the end.
+- choiceStatus == 2:
+Okay but the possibility of staying in the same condition is not appealing at all. I came here to get an improvement in the end.
+}
+~choiceStatus = 0
+~keypoints += (PIAT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+/////******PosEffDuringTreat
+
+==D_WaS_T_PEDT==
+~speaker = Doctor
+- As you can imagine, there is no extra side effect or discomfort caused by this option more than what you have now.
+{
+- choiceStatus == 0:
+<> ...
+->D_WaS_C_PEDT
+- choiceStatus == 1:
+<> However, if you feel any more worsening, you should visit for another opttion.
+->P_WaS_C_PEDT
+- choiceStatus == 2:
+<> However, with you driving long hours or due to anything else, if it goes worse, you should visit for another option.
+->P_WaS_C_PEDT
+}
+
+==D_WaS_C_PEDT==
+* [Explain in general]
+~choiceStatus = 1
+->D_WaS_T_PEDT
+* [Explain with considering patient's work]
+~ finalApplyICE++
+~choiceStatus = 2
+->D_WaS_T_PEDT
+
+==P_WaS_C_PEDT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Sure. Feels like it would be the case, considering I am at the wheel for long hours at my work.
+- choiceStatus == 2:
+Yes, sure. Feel like it would be like that with my work as you said.
+}
+~choiceStatus = 0
+~keypoints += (PEDT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+
+/////******ReqTimeforTreat
+
+==D_WaS_T_RTfT==
+~speaker = Doctor
+- The waiting for a recovery in this option can take upto 6 months
+{
+- choiceStatus == 0:
+<> ...
+->D_WaS_C_RTfT
+- choiceStatus == 1:
+<> to give your body to the time it needs to manage the tendinosis and inflamation in bursa.
+->P_WaS_C_RTfT
+- choiceStatus == 2:
+<> to give your body the time it neeeds to manage the damage in your shoulder and inflamation. 
+->P_WaS_C_RTfT
+}
+
+==D_WaS_C_RTfT==
+* [Explain with referencing tendinosis and bursa]
+~choiceStatus = 1
+->D_WaS_T_RTfT
+* [Explain in general]
+~ finalAvoidJar++
+~choiceStatus = 2
+->D_WaS_T_RTfT
+
+==P_WaS_C_RTfT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+That's a very long time. My rotator cuff or whatever it's, has already waited for 6 months before coming here.
+- choiceStatus == 2:
+That's also a very long time. As I said, I've already waited for 6 months before coming here.
+}
+~choiceStatus = 0
+~keypoints += (RTfT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}

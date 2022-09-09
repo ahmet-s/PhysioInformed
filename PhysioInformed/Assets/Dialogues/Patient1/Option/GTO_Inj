@@ -1,0 +1,199 @@
+VAR avoidJar_Inj = 1
+VAR sufInfo_Inj = 1
+VAR applyICE_Inj = 2
+
+VAR pointTakenInj = false
+
+////////////////***********Injection
+==D_Inj_T_Exp==
+~keypointsCompleted = false
+~DocTextView(true)
+~keypoints -= (PIAT, PEDT, RTfT)
+{
+- !pointTakenInj:
+~TotalOSCEPoints(avoidJar_Inj, sufInfo_Inj, applyICE_Inj)
+~pointTakenInj = true
+}
+~speaker = Doctor
+{
+- treatmentOrder == 0:
+Let's start with <>
+- treatmentOrder == 1:
+Another option is <>
+- treatmentOrder == 2:
+Final option is <>
+}
+injection. In this option, we inject steroids in the shoulder area.
+{
+- choiceStatus == 0:
+<> ...
+->D_Inj_C_Exp
+- choiceStatus == 1:
+<> It's a synthetic drug resembling cortisol and will reduce pain by reducing inflamation in your bursa.
+->P_Inj_C_Exp
+- choiceStatus == 2:
+<> It's an anti-inflamatory drug  and will reduce the pain by reducing inflamation in your shoulder.
+->P_Inj_C_Exp
+}
+
+==D_Inj_C_Exp==
+* [Explain with referencing sobacromial bursa]
+~choiceStatus = 1
+->D_Inj_T_Exp
+* [Explain in general]
+~ finalAvoidJar++
+~choiceStatus = 2
+->D_Inj_T_Exp
+
+==P_Inj_C_Exp==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Okay, I don't know about cortisols but if synthetic doesn't mean I can have some side effects, it sounds good and easy.
+- choiceStatus == 2:
+I see. This sounds easy and if it's effective, looks like a good option.
+}
+~choiceStatus = 0
+~StartKeypoints()
+->DONE
+
+
+/////******PosImpAfterTreat
+
+==D_Inj_T_PIAT==
+~speaker = Doctor
+- The improvement provided by injection is moderate for both your pain and funtional situation. Especially, after six months the effects can disappear. 
+{
+- choiceStatus == 0:
+<> ...
+->D_Inj_C_PIAT
+- choiceStatus == 1:
+->P_Inj_C_PIAT
+- choiceStatus == 2:
+<> However, if you strengthen your muscles at this time with simple shoulder exercises, it can last longer.
+->P_Inj_C_PIAT
+}
+
+==D_Inj_C_PIAT==
+* [Continue to next keypoint or treatment]
+~choiceStatus = 1
+->D_Inj_T_PIAT
+* [Explain more]
+~ finalSufInfo++
+~choiceStatus = 2
+->D_Inj_T_PIAT
+
+==P_Inj_C_PIAT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+I thought it would be a more effective option.
+- choiceStatus == 2:
+I thought it would be a more effective option but I can exercise regularly, if that helps.
+} 
+~choiceStatus = 0
+~keypoints += (PIAT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+/////******PosEffDuringTreat
+
+==D_Inj_T_PEDT==
+~speaker = Doctor
+- One of the good things with this option, it's unlikely that you'll have any serious side effects or discomforts caused by the procedure.
+{
+- choiceStatus == 0:
+<> ...
+->D_Inj_C_PEDT
+- choiceStatus == 1:
+<> So, it's a relatively easy operation if you have no specific condition to consider.
+->P_Inj_C_PEDT
+- choiceStatus == 2:
+<> From that point without a specific condition to consider, it may be a good option since it won't affect your working situation at all.
+->P_Inj_C_PEDT
+}
+
+==D_Inj_C_PEDT==
+* [Explain in general]
+~choiceStatus = 1
+->D_Inj_T_PEDT
+* [.Explain with considering patient's work]
+~ finalApplyICE++
+~choiceStatus = 2
+->D_Inj_T_PEDT
+
+==P_Inj_C_PEDT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+That's good.
+- choiceStatus == 2:
+That's good, I will keep that option in mind.
+}
+~choiceStatus = 0
+~keypoints += (PEDT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+
+/////******ReqTimeforTreat
+
+==D_Inj_T_RTfT==
+~speaker = Doctor
+- Since it's an easy procedure, it can be done in a day and you may only need to wait 2 weeks to get the treatment. The recovery on the other hand can take upto 6 months.
+{
+- choiceStatus == 0:
+<> ...
+->D_Inj_C_RTfT
+- choiceStatus == 1:
+<> So, you can get the treatment very easily without waiting much in this current situation.
+->P_Inj_C_RTfT
+- choiceStatus == 2:
+<> So, you can get the treatment without waiting much and without interfering with your work.
+->P_Inj_C_RTfT
+}
+
+==D_Inj_C_RTfT==
+* [Explain in general]
+~choiceStatus = 1
+->D_Inj_T_RTfT
+* [Explain with considering patient's work]
+~ finalApplyICE++
+~choiceStatus = 2
+->D_Inj_T_RTfT
+
+==P_Inj_C_RTfT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+I see. It's also good that I don't have to leave work or try to adjust my work schedule for this.
+- choiceStatus == 2:
+Yes, this opiton seems very suitable with my work.
+}
+~choiceStatus = 0
+~keypoints += (RTfT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}

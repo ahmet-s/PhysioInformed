@@ -1,0 +1,49 @@
+{
+	"informations":
+	[
+		{
+		"text": "Let's start with a little \nintroduction",
+		"position": {"x":0.0,"y":365.0,"z":0.0}
+		},
+		{
+		"text": "The above panel \nwill give little instructions \nif you need.",
+		"position": {"x":0.0,"y":365.0,"z":0.0}
+		},
+		{
+		"text": "Here, you can see \nhow much time you have \nfor a patient",
+		"position": {"x":-719.0,"y":257.0,"z":0.0}
+		},
+		{
+		"text": "Here, \nwith the button at the corner, \nyou can see patient history \nanytime",
+		"position": {"x":655.0,"y":257.0,"z":0.0}
+		},
+		{
+		"text": "When you pressed OK, \nthe game will start \nautomatically. \nGood Luck!",
+		"position": {"x":0.0,"y":-415.0,"z":0.0}
+		},
+		{
+		"text": "Choose 2 or 3 treatments that \nyou think more appropriate \nfor the current patient \nby selecting/deselecting.",
+		"position": {"x":597.0,"y":187.0,"z":0.0}
+		},
+		{
+		"text": "Here, you can choose \na treatment to \nstart explaining.",
+		"position": {"x":-600.0,"y":75.0,"z":0.0}
+		},
+		{
+		"text": "You'll complete \nthe explanation with \nthe choices given.",
+		"position": {"x":0.0,"y":-105.0,"z":0.0}
+		},
+		{
+		"text": "After initial explanation, \nyou can give more detail \nwith this panel.",
+		"position": {"x":560.0,"y":75.0,"z":0.0}
+		},
+		{
+		"text": "Choose a treatment to start \nnegotiating on it \nwith the patient.",
+		"position": {"x":0.0,"y":-65.0,"z":0.0}
+		},
+		{
+		"text": "You can eliminate or prescribe \nany treatment, anytime \nwith the buttons next to them.",
+		"position": {"x":0.0,"y":-65.0,"z":0.0}
+		}
+	]
+}

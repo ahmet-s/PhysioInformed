@@ -1,0 +1,66 @@
+//*************************   INJECTION  *************
+
+LIST negotiatingInj = ConsultInj, ShareInj, ExploreInj
+
+==D_Inj==
+{
+- !preparedTreatments: 
+~TreatmentValues()
+~preparedTreatments = true
+}
+* [Ask patient's thought for the option]
+~speaker = Doctor
+~negotiatingInj += (ConsultInj)
+~_ADMP_OSCEPoints += (Consult)
+{LIST_COUNT(negotiatingInj) > 1 && lastTreatment == "Inj":Is there anything else you want me to consider with this option?|What do you think about injection option?}
+~patientDiversionIndex = 0
+->P_Inj
+* [Share your medical view for the option]
+~speaker = Doctor
+~negotiatingInj += (ShareInj)
+~_ADMP_OSCEPoints += (Share)
+{lastTreatment != "Inj":With that being said, a|A}s my professional view, {worstTreatment == Inj:injection can be a temporary solution and I believe we have better options.}{bestTreatment == Inj:though, injection can be a temporary solution, its outcomes are better than other options.|though it can fade, the moderate results injection provides may be better if you strengthen your muscles. So, its up to your improvements.}
+~patientDiversionIndex = 1
+->P_Inj
+* [Explore pros and cons of the option]
+~speaker = Doctor
+~negotiatingInj += (ExploreInj)
+~_ADMP_OSCEPoints += (Explore)
+{LIST_COUNT(negotiatingInj) == 2 && negotiatingInj ? ShareInj && lastTreatment == "Inj":Okay but let's look at pros and cons to remind.} {lastTreatment != "Inj":With that being said, g|G}ood thing with injection is an easy procedure and without side effects and discomfort. However, as I mentioned, its effects can fade while providing a moderate improvement in pain and functionality.
+~patientDiversionIndex = 2
+->P_Inj
+
+==P_Inj==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+It's like a temporary option as you mentioned{worstTreatment == Inj: but looks better than other option as I remember.|. So, I don't know really.}  
+- patientDiversionIndex == 1:
+I see. So, {worstTreatment != Inj: {bestTreatment != Inj:I can exercise for my muscles but|It's} hard for me to consider, I'll leave that to you.| If you say so{treatments ? WaS: even though, wait and see in the options}.}
+- patientDiversionIndex == 2:
+{bestTreatment == Inj:Though fades, looks more promising than other ones. |{treatments ? WaS:Though looks better than wait and see, }I might want to trust you on this one since it can fade.}  
+}
+{
+- LIST_COUNT(negotiatingInj) == 3:
+~treatmentsToNegotiate--
+->DONE
+- else:
+~lastTreatment = "Inj"
+->D_Inj
+}
+
+==D_Inj_Eliminate==
+~speaker = Doctor
+- Okay. injection doesn't suit your expectations and with it may not be permenant, we can choose another one. Let's eliminate this.
+->P_Eliminate
+
+
+
+==D_Inj_Prescribe==
+~speaker = Doctor
+- Okay. Considering your situation, I believe injection will provide you to best outcome especially if you work on your muscles. So, you can take this as a treatment.
+~lastTreatment = "Inj"
+~prescribedTreatment = Prescription(Inj)
+->P_Prescribe
+
+

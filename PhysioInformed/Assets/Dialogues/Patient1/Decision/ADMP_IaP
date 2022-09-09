@@ -1,0 +1,67 @@
+//*******************   INJECTION AND PHYSIO  *************
+
+LIST negotiatingIaP = ConsultIaP, ShareIaP, ExploreIaP
+
+==D_IaP==
+{
+- !preparedTreatments: 
+~TreatmentValues()
+~preparedTreatments = true
+}
+* [Ask patient's thought for the option]
+~speaker = Doctor
+~negotiatingIaP += (ConsultIaP)
+~_ADMP_OSCEPoints += (Consult)
+{negotiatingIaP ? ExploreIaP && lastTreatment == "IaP":So, you may consider it as a option?|What do you think about injection and physiotherapy options together?}
+~patientDiversionIndex = 0
+->P_IaP
+* [Share your medical view for the option]
+~speaker = Doctor
+~negotiatingIaP += (ShareIaP)
+~_ADMP_OSCEPoints += (Share)
+{lastTreatment != "IaP":Alternatively, m|M}edically speaking, injection with physiotherapy is one of the best options and can provide what you expect for your resolvement of your situation{bestTreatment != IaP: though you can get similar results and lower side effect with advice sheets.}
+~patientDiversionIndex = 1
+->P_IaP
+* [Explore pros and cons of the option]
+~speaker = Doctor
+~negotiatingIaP += (ExploreIaP)
+~_ADMP_OSCEPoints += (Explore)
+ {lastTreatment != "IaP":Alternatively, i|I}njection with physiotherapy is generally a good option with good outcomes on pains and improvement. Low side effects but therapy can be a little discomforting. Main con for it, the 3 months long therapy sessions.
+~patientDiversionIndex = 2
+->P_IaP
+
+==P_IaP==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+As for as you told, it's a promising option{bestTreatment == IaP:. I would be very skeptic only for physiotherapy but with this option maybe I should think about it.| but physiotherapy part makes me more of an advice sheets fan.}
+- patientDiversionIndex == 1:
+I understand{bestTreatment == IaP:. Physiotherapy looks inevitable for good results.| but maybe advice sheets are better for me to continuation to treatment.}
+- patientDiversionIndex == 2:
+Yes, which makes me think about the option, otherwise; I would surely take it if you would also approve.  
+}
+{
+- LIST_COUNT(negotiatingIaP) == 3:
+~treatmentsToNegotiate--
+->DONE
+- else:
+~lastTreatment = "IaP"
+->D_IaP
+}
+
+==D_IaP_Eliminate==
+~speaker = Doctor
+- Okay. injection with physiotherapy doesn't suit your expectations especially with continuing sessions, we can choose another one. Let's eliminate this.
+->P_Eliminate
+
+
+
+==D_IaP_Prescribe==
+~speaker = Doctor
+- Okay. Considering your situation, I believe injection with physiotherapy will provide you to best outcome. So, you can take this as a treatment.
+~lastTreatment = "IaP"
+~prescribedTreatment = Prescription(IaP)
+->P_Prescribe
+
+
+

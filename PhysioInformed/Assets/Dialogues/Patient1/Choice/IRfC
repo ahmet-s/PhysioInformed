@@ -1,0 +1,221 @@
+VAR takingFocusHistory = false
+LIST _IRfC_OSCE = AskOpen, TakeFocus
+
+//Selected not included in story since explained in vignette in the game
+LIST focusTopicNames = _Onset, _Radiation, _MedHist, (_ExerRelFac), _WorkCond, (_WorkOut), _SocHist
+
+==D_IRfC_0==
+* [I see. As a treatment... (Recommend a treatment)]
+
+~RecommendTreatment()
+~patientDiversionIndex = 0
+->DONE
+* [Let's talk about... (Talk about treatment options)]
+~speaker = Doctor
+Let's talk about treatment options. We have some options at hand and I want to go through them together with you.
+~patientDiversionIndex = 1
+->P_IRfC_0
+* [Okay. So, looking at your form... (Summarize the situation)]
+~speaker = Doctor
+~ playerStrConsul++
+Okay. So, looking at your form, we can summarize the situation as a shoulder pain started 6 months ago. It's getting worse /**ExerRelFac**/especially when lying on it or lifting. /**WorkOut**/Quitted an already limited working out routine due to a previous back injury. Finally you worried the situation can interfere with your work.
+~patientDiversionIndex = 2
+->P_IRfC_0
+* [I understand. Let me... (Take information about the situation)]
+~speaker = Doctor
+~ _IRfC_OSCE += (TakeFocus)
+I understand. Let me ask you a couple of questions about the situation.
+~transition = "D_PfSDM_0"
+~patientDiversionIndex = 3
+->P_IRfC_0
+* [{transition == "context":I am sorry to hear that. }Can you tell... (Direct the situation with an open question)]
+~speaker = Doctor
+~ _IRfC_OSCE += (AskOpen)
+I am sorry to hear that. Can you tell me a little bit more about these pains you are having?
+~patientDiversionIndex = 4
+->P_IRfC_0
+* {transition == "greet"} [You too. So... (Get the context of consultation)]
+~speaker = Doctor
+~storyFlow = IS
+~ _IS_OSCE += (CoC)
+You too. So, you are here today for talking about your shoulder pain, is that correct?
+~transition = "context"
+->P_IS_2
+
+==P_IRfC_0==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+~ recommendedTreatment = true
+Okay, thank you, .... I guess. .... Is there another physiotherapist in this hospital ?
+~ FinalizeSession()
+->DONE
+- patientDiversionIndex == 1:
+Yes, let's jump into the treatments(!)
+~GoToGTO()
+->DONE
+- patientDiversionIndex == 2:
+Yes. I think that sums it up, if that's enough.
+~storyFlow = PfSDM
+->D_PfSDM_0
+- patientDiversionIndex == 3:
+Sure.
+~takingFocusHistory = true
+~TakingFocus()
+->DONE
+- patientDiversionIndex == 4:
+It started 6 months ago and I don't know why. Now, laying on my shoulder or lifting my arm too much makes it even worse. I quitted gym which was already limited because of an old back injury but I was only working with weights and doing some cardio. Not being able to lifting my arm is problematic for my work as a lorry driver. I don't carry things but I am on the wheel all the time.
+->D_IRfC_1
+}
+
+==D_IRfC_1==
+* [I understand. So... (Summarize the situation)]
+~speaker = Doctor
+~ playerStrConsul++
+Okay. So, we can summarize the situation as a shoulder pain started 6 months ago /**Onset**/and we don't know the exact reason. It's getting worse /**ExerRelFac**/especially when lying on it or lifting. /**WorkOut**/Quitted an already limited working out routine due to a previous back injury. Finally you worried the situation can interfere with your work /**WorkCond**/in which you don't stress your shoulder except driving long hours.
+~patientDiversionIndex = 0
+->P_IRfC_1
+* [We'll help you about that... (Take more information about the situation)]
+~speaker = Doctor
+~focusTopicNames += (_Onset, _WorkCond)
+~ _IRfC_OSCE += (TakeFocus)
+Hopefully, we'll help you about that.  I have another questionabout your situation before we move further.
+~ChangeFocusTopics()
+~transition = "D_BR_0"
+~patientDiversionIndex = 1
+->P_IRfC_1
+
+==P_IRfC_1==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+Yes Doctor, I think that sums it up.
+~storyFlow = BR
+->D_BR_0
+- patientDiversionIndex == 1:
+Sure Doctor.
+~takingFocusHistory = true
+~TakingFocus()
+->DONE
+}
+
+
+//From other flows
+==P_IRfC_2==
+~speaker = Patient
+- Yes Doctor, I think that sums it up.
+{
+- transition == "D_BR_0":
+~storyFlow = BR
+->D_BR_0
+- transition == "D_PfSDM_0":
+~storyFlow = PfSDM
+->D_PfSDM_0
+}
+
+==D_IRfC_Focus==
++ {LIST_COUNT(focusTopicNames) != 7} [Continue with taking more information]
+~ speaker = Doctor
+~takingFocusHistory = true
+~TakingFocus()
+->DONE
++ [Continue to next section]
+~ speaker = Doctor
+~takingFocusHistory = false
+{
+- transition == "D_PfSDM_0":
+->D_PfSDM_0
+- transition == "D_BR_0":
+->D_BR_0
+}
+///////////**********Focus History Topics**********///////////
+
+==Onset==
+~speaker = Doctor
+- Can you think anything that may related to start of pains?
+->Onset_P
+
+=Onset_P
+~speaker = Patient
+- No, I don't remember exactly. It started slowly and worsened in time.
+~focusTopicNames += (_Onset)
+->D_IRfC_Focus
+
+==Radiation==
+~speaker = Doctor
+- Do you ever find that your pains travel to another part of your body?
+->Radiation_P
+
+=Radiation_P
+~speaker = Patient
+- No, just the shoulder area. My back hurts sometimes but only if I do some forcing activity.
+~focusTopicNames += (_Radiation)
+->D_IRfC_Focus
+
+==Med_History==
+~speaker = Doctor
+- Do you have any medical condition to state or medication you use?
+->Med_History_P
+
+=Med_History_P
+~speaker = Patient
+- No, except my back nothing that I know.
+~focusTopicNames += (_MedHist)
+->D_IRfC_Focus
+
+==Exerbating_Relieving_Factors==
+~speaker = Doctor
+- Is there anything that makes the pains worse or better?
+->Exerbating_Relieving_Factors_P
+
+=Exerbating_Relieving_Factors_P
+~speaker = Patient
+- Laying on it and lifting it too much increases the pain.
+~focusTopicNames += (_ExerRelFac)
+->D_IRfC_Focus
+
+==Work_Conditions==
+~speaker = Doctor
+- Do you do anything in work that may stress your shoulder?
+->Work_Conditions_P
+
+=Work_Conditions_P
+~speaker = Patient
+- I mean I don't carry things around, I am just a driver but lifting my arm is a problem since I am on the wheel all the time.
+~focusTopicNames += (_WorkCond)
+->D_IRfC_Focus
+
+==Working_Out==
+~speaker = Doctor
+- How was you gym routine, anything that may hurt your shoulder?
+->Working_Out_P
+
+=Working_Out_P
+~speaker = Patient
+- Since the limitation put by my back, I was careful but I often use weights for my arms and shoulder.
+~focusTopicNames += (_WorkOut)
+->D_IRfC_Focus
+
+==Social_History==
+~speaker = Doctor
+- Do you mind if I asked if you are  living with someone to understand if there is anybody to help when you are in pain?
+->Social_History_P
+
+=Social_History_P
+~speaker = Patient
+- No, I live alone right now but I have friends if something serious comes up.
+~focusTopicNames += (_SocHist)
+->D_IRfC_Focus
+
+
+
+
+
+
+
+
+
+
+
+
+

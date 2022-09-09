@@ -1,0 +1,199 @@
+VAR avoidJar_NSA = 1
+VAR sufInfo_NSA = 2
+VAR applyICE_NSA = 1
+
+VAR pointTakenNSA = false
+
+////////////////***********NSAIDs
+==D_NSA_T_Exp==
+~keypointsCompleted = false
+~DocTextView(true)
+~keypoints -= (PIAT, PEDT, RTfT)
+{
+- !pointTakenNSA:
+~TotalOSCEPoints(avoidJar_NSA, sufInfo_NSA, applyICE_NSA)
+~pointTakenNSA = true
+}
+~speaker = Doctor
+{
+- treatmentOrder == 0:
+Let's start with <>
+- treatmentOrder == 1:
+Another option is <>
+- treatmentOrder == 2:
+Final option is <>
+}
+NSAIDs. These are anti-inflamatory medicines that will reduce the inflamation on your shoulder and pain it causes. I am sure you are familiar with them from aspirin or ibuprofen and
+{
+- choiceStatus == 0:
+<> ...
+->D_NSA_C_Exp
+- choiceStatus == 1:
+<> as you can guess, this is an easy treatment to go under compared to some treatment options.
+->P_NSA_C_Exp
+- choiceStatus == 2:
+<> as you can guess, this is an easy treatment to go under. So, you might not concern yourself about your job with this option.
+->P_NSA_C_Exp
+}
+
+==D_NSA_C_Exp==
+* [Explain in general]
+~choiceStatus = 1
+->D_NSA_T_Exp
+* [Explain with considering patient's work]
+~ finalApplyICE++
+~choiceStatus = 2
+->D_NSA_T_Exp
+
+==P_NSA_C_Exp==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Yes, I can guess. I hope they are also effective enough.
+- choiceStatus == 2:
+Yes, you may right but as long as they will be enough to overcome this pain.
+}
+~choiceStatus = 0
+~StartKeypoints()
+->DONE
+
+
+/////******PosImpAfterTreat
+
+==D_NSA_T_PIAT==
+~speaker = Doctor
+- These can provide a moderate relief for your pains. However unfortunately, this option doesn't seem enough to recover from your functional complaints.
+{
+- choiceStatus == 0:
+<> ...
+->D_NSA_C_PIAT
+- choiceStatus == 1:
+<> Though it reduces the inflamation in bursa, it won't enough to cure tendinosis in your rotator cuff.
+->P_NSA_C_PIAT
+- choiceStatus == 2:
+<> Though it reduces the inflamation in your shoulder, it won't help with the damage on your shoulder muscles.
+->P_NSA_C_PIAT
+}
+
+==D_NSA_C_PIAT==
+* [Explain in general]
+~choiceStatus = 1
+->D_NSA_T_PIAT
+* [Explain with referencing rotator cuff and bursa]
+~ finalAvoidJar++
+~choiceStatus = 2
+->D_NSA_T_PIAT
+
+==P_NSA_C_PIAT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+This may be problem for my work. It's hard to drive while not being able to lift my arm enough.
+- choiceStatus == 2:
+So, it will help with pain but not with my movement ability. This may be problem for my work. It's hard to drive while not being able to lift my arm enough.
+}
+~choiceStatus = 0
+~keypoints += (PIAT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+/////******PosEffDuringTreat
+
+==D_NSA_T_PEDT==
+~speaker = Doctor
+- These medicines generally doesn't have serious side effects and of course it won't create any discomfort to use them.
+{
+- choiceStatus == 0:
+<> ...
+->D_NSA_C_PEDT
+- choiceStatus == 1:
+<> Just you should use them as you told and only for the time it's said.
+->P_NSA_C_PEDT
+- choiceStatus == 2:
+<> It would also be good if you don't drink much during treatment and use them as you told.
+->P_NSA_C_PEDT
+}
+
+==D_NSA_C_PEDT==
+* [Continue to next keypoint or treatment]
+~choiceStatus = 1
+->D_NSA_T_PEDT
+* [Explain more]
+~ finalSufInfo++
+~choiceStatus = 2
+->D_NSA_T_PEDT
+
+==P_NSA_C_PEDT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Sure Doctor.
+- choiceStatus == 2:
+Sure, if that's necessary.
+}
+~choiceStatus = 0
+~keypoints += (PEDT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+
+/////******ReqTimeforTreat
+
+==D_NSA_T_RTfT==
+~speaker = Doctor
+- So, as I said, it's an easy treatment to have. You can get the medicine in a week and will use it for 2 weeks. The anti-inflammatory effect should be seen in this time.
+{
+- choiceStatus == 0:
+<> ...
+->D_NSA_C_RTfT
+- choiceStatus == 1:
+->P_NSA_C_RTfT
+- choiceStatus == 2:
+<> If you don't see an effect we can try another medicine but it's crucial that you used them regulary and not long then 2 weeks.
+->P_NSA_C_RTfT
+}
+
+==D_NSA_C_RTfT==
+* [Continue to next keypoint or treatment]
+~choiceStatus = 1
+->D_NSA_T_RTfT
+* [Explain more]
+~ finalSufInfo++
+~choiceStatus = 2
+->D_NSA_T_RTfT
+
+==P_NSA_C_RTfT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Okay, that's a short time to take and observe the treatment.
+- choiceStatus == 2:
+Okay, I will keep that in mind if that would be the treatment you prescribe.
+}
+~choiceStatus = 0
+~keypoints += (RTfT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}

@@ -1,0 +1,67 @@
+//*************************   WAIT AND SEE  *************
+
+LIST negotiatingWaS = ConsultWaS, ShareWaS, ExploreWaS
+
+==D_WaS==
+{
+- !preparedTreatments: 
+~TreatmentValues()
+~preparedTreatments = true
+}
+* [Ask patient's thought for the option]
+~speaker = Doctor
+~negotiatingWaS += (ConsultWaS)
+~_ADMP_OSCEPoints += (Consult)
+{LIST_COUNT(negotiatingWaS) != 1 && lastTreatment == "WaS":So, you sure with you don't want to wait?|What do you think about wait and see option?}
+~patientDiversionIndex = 0
+->P_WaS
+* [Share your medical view for the option]
+~speaker = Doctor
+~negotiatingWaS += (ShareWaS)
+~_ADMP_OSCEPoints += (Share)
+{lastTreatment != "WaS":On the other side, t|T}o my perspective, {bestTreatment == WaS:it may not seem a proper option but considering other options, wait and see can provide similar or better results for you without having an intervention that my discomfort.|{worstTreatment == WaS:other options we have can provide better results since with wait and see, it's possible to get no improvement.|it may not seem a proper option but wait and see may provide similar effects to {TreatmentFullNames(worstTreatment)} without an intervention.}}
+~patientDiversionIndex = 1
+->P_WaS
+* [Explore pros and cons of the option]
+~speaker = Doctor
+~negotiatingWaS += (ExploreWaS)
+~_ADMP_OSCEPoints += (Explore)
+{LIST_COUNT(negotiatingWaS) == 2 && negotiatingWaS ? ShareWaS && lastTreatment == "WaS":Okay but let's look at pros and cons to remind.} {lastTreatment != "WaS":On the other hand, i|I}n general wait and see option can prevent you from a unnecessary intervention but in your situation as a pro, at worse it seems like it would stay the same if you don't stress your shoulder more than usual. 
+~patientDiversionIndex = 2
+->P_WaS
+
+==P_WaS==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+It seems not meaningful to me doing nothing. I've already waited some time but they only got worsened.   
+- patientDiversionIndex == 1:
+Sure I don't want an unnecessary intervention but I thought something would be to make this situation better than waiting.
+- patientDiversionIndex == 2:
+{bestTreatment == WaS:Though fades, looks more promising than other ones. |{treatments ? WaS:Though looks better than wait and see, }I might want to trust you on this one since it can fade.}  
+}
+{
+- LIST_COUNT(negotiatingWaS) == 3:
+~treatmentsToNegotiate--
+->DONE
+- else:
+~lastTreatment = "WaS"
+->D_WaS
+}
+
+==D_WaS_Eliminate==
+~speaker = Doctor
+- Okay. Wait and see doesn't suit your expectations and you aren't comfortable with it, we can choose another one. Let's eliminate this.
+->P_Eliminate
+
+
+
+==D_WaS_Prescribe==
+~speaker = Doctor
+- Okay. Considering your situation, I believe wait and see can provide similar results. So, no need for unnecessary interventions.  can take this as a treatment.
+~lastTreatment = "WaS"
+~prescribedTreatment = Prescription(WaS)
+->P_Prescribe
+
+
+

@@ -1,0 +1,198 @@
+VAR avoidJar_AS = 2
+VAR sufInfo_AS = 1
+VAR applyICE_AS = 1
+
+VAR pointTakenAS = false
+
+////////////////***********AdviceSheet
+==D_AS_T_Exp==
+~keypointsCompleted = false
+~DocTextView(true)
+~keypoints -= (PIAT, PEDT, RTfT)
+{
+- !pointTakenAS:
+~TotalOSCEPoints(avoidJar_AS, sufInfo_AS, applyICE_AS)
+~pointTakenAS = true
+}
+~speaker = Doctor
+{
+- treatmentOrder == 0:
+Let's start with <>
+- treatmentOrder == 1:
+Another option is <>
+- treatmentOrder == 2:
+Final option is <>
+}
+advice sheet option which requires less intervention. These are instruction sheets that gives information about your situation and includes exercises related to your condition.
+{
+- choiceStatus == 0:
+<> ...
+->D_AS_C_Exp
+- choiceStatus == 1:
+<> Doing these exercises regularly may help you to strengthen your rotator cuff and decrease the inflamation in your bursa.
+->P_AS_C_Exp
+- choiceStatus == 2:
+<> Doing these exercises regularly may help you to relieve your shoulder pain with strengthening your muscles.
+->P_AS_C_Exp
+}
+
+==D_AS_C_Exp==
+* [Explain with referencing rotator cuff and bursa]
+~choiceStatus = 1
+->D_AS_T_Exp
+* [Explain in general]
+~ finalAvoidJar++
+~choiceStatus = 2
+->D_AS_T_Exp
+
+==P_AS_C_Exp==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Hmm, it seems efficient as far as I can understand. Will it be enough though? As I said, I really need to get better for my work.
+- choiceStatus == 2:
+I see. I enjoy working out normally; so, that sounds good to practice. Will it be enough though? As I said, I really need to get better for my work.
+}
+~choiceStatus = 0
+~StartKeypoints()
+->DONE
+
+
+/////******PosImpAfterTreat
+
+==D_AS_T_PIAT==
+~speaker = Doctor
+- {keypoints !? PEDT && keypoints !? RTfT: Yes, it depends on the situation but in your case I can say that.} Strengthening
+{
+- choiceStatus == 0:
+<> ...
+->D_AS_C_PIAT
+- choiceStatus == 1:
+<> rotator cuff can noticeably help you to deal with pains caused by tendinosis and inflamation in bursa, and to improve your functionality.
+->P_AS_C_PIAT
+- choiceStatus == 2:
+<> muscles can noticeably help you to deal with pain, and to improve your functionality.
+->P_AS_C_PIAT
+}
+
+==D_AS_C_PIAT==
+* [Explain with referencing rotator cuff and bursa]
+~choiceStatus = 1
+->D_AS_T_PIAT
+* [Explain in general]
+~ finalAvoidJar++
+~choiceStatus = 2
+->D_AS_T_PIAT
+
+==P_AS_C_PIAT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Okay. So, it improves my condition.
+- choiceStatus == 2:
+Okay. It's good, then.
+}
+~choiceStatus = 0
+~keypoints += (PIAT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+/////******PosEffDuringTreat
+
+==D_AS_T_PEDT==
+~speaker = Doctor
+- {keypoints !? PEDT && keypoints !? PIAT: Yes.} In this option, you can nearly expect no side effects at all. Only discomfort caused by the process would be a little uneasiness on your shoulder while/after performing exercises.
+{
+- choiceStatus == 0:
+<> ...
+->D_AS_C_PEDT
+- choiceStatus == 1:
+->P_AS_C_PEDT
+- choiceStatus == 2:
+<> It's important that you do the exercises regularly for that and to get good results out of it.
+->P_AS_C_PEDT
+}
+
+==D_AS_C_PEDT==
+* [Continue to next keypoint or treatment]
+~choiceStatus = 1
+->D_AS_T_PEDT
+* [Explain more]
+~ finalSufInfo++
+~choiceStatus = 2
+->D_AS_T_PEDT
+
+==P_AS_C_PEDT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+Good.
+- choiceStatus == 2:
+Sure, I am used to regular training from my gym routine.
+}
+~choiceStatus = 0
+~keypoints += (PEDT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}
+
+
+/////******ReqTimeforTreat
+
+==D_AS_T_RTfT==
+~speaker = Doctor
+- {keypoints !? PEDT && keypoints !? PIAT: Yes.} As one of the advantages, you don't have to wait for getting a treatment. You'll need to practice these exercise for about 6 months for full recovery but you can start immediately and
+{
+- choiceStatus == 0:
+<> ...
+->D_AS_C_RTfT
+- choiceStatus == 1:
+<> perform the exercises in your daily routine.
+->P_AS_C_RTfT
+- choiceStatus == 2:
+<> it can be even possible to perform these in breaks during your work hours without effecting your job as you may want.
+->P_AS_C_RTfT
+}
+
+==D_AS_C_RTfT==
+* [Explain in general]
+~choiceStatus = 1
+->D_AS_T_RTfT
+* [Explain with considering patient's work]
+~ finalApplyICE++
+~choiceStatus = 2
+->D_AS_T_RTfT
+
+==P_AS_C_RTfT==
+~speaker = Patient
+{
+- choiceStatus == 1:
+6 months is long but it seems easy and wouldn't be a problem I guess.
+- choiceStatus == 2:
+That would be really great for me.
+}
+~choiceStatus = 0
+~keypoints += (RTfT)
+{
+-LIST_COUNT(keypoints) == 3:
+~treatmentOrder++
+~DocTextView(false)
+->KeypointsCompleted
+-else:
+~ActivateKeypoints()
+->DONE
+}

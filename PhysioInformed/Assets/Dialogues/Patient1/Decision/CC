@@ -1,0 +1,51 @@
+//*************************     CC     *************
+LIST _CC_OSCEPoints = FollowUp, Thank 
+
+==D_CC_0==
+* [Okay then, thank you for your cooperation... Have a nice day.]
+~speaker = Doctor
+~ _CC_OSCEPoints += (Thank)
+Okay then, thank you for your cooperation today, I appreciate it. Have a nice day and I hope you get well soon.
+->EndOfSesssion
+* [Okay then, as the final remarks for the treatment...]
+~ _CC_OSCEPoints += (FollowUp)
+~speaker = Doctor
+- Okay then, as the final remarks for the <>
+{
+- lastTreatment == "Inj":
+injection, you should still be careful with your shoulder and try strengthening your muscles in the mean time. If after 6 months, you feel a worsening again, you can visit me again and we can repeat the procedure or look for another treatment. You can arrange a date for the procedure at the front desk.
+- lastTreatment == "Phy":
+physiotherapy, the physiotherapist attending your sessions will inform you about the general procedure. Please, try attending therapies regularly for the best outcome. You can arrange the dates for sessions at the front desk.
+- lastTreatment == "Sur":
+surgery, I'll be seeing you before the procedure for the final preparations. As I said though, you'll need to take a leave for a time from work. So, keep that in mind. Be careful with your shoulder until the procedure. You can arrange the date for it at the front desk.
+- lastTreatment == "WaS":
+wait and see, you really need to be careful in this time. Try making simple exercises with your shoulder but be observant for the movements making it bad. If possible, maybe you can take a leave from work for a time to rest your shoulder to not lift much while driving. If the pains doesn't go away in 6 months, you can visit me again.
+- lastTreatment == "AS":
+advice sheet, do the exercises in the sheets regularly. Try doing them in the mornings and before going bed. If you do them regularly, I am sure your shoulder will get better with more strong muscles. Be careful with your shoulder for a time.
+- lastTreatment == "NSA":
+NSAIDs(anti-inflamatories), use the medicine regularly and as you told. If the pains doesn't go away, we can try another one or look for another treatment. Don't stress your shoulder much in the mean time. You can get the prescription from the front desk.
+- lastTreatment == "IaP":
+injectiong and physiotherapy, you can take the date for the injection at the front desk and arrange therapy sessions for the afterwards. Please, try attending therapies regularly to get the best results and the combination effect.
+- lastTreatment == "SaP":
+surgery and physiotherapy, you can take the date for the surgery at the front desk and arrange therapy sessions for the afterwards. I'll be seeing you before the procedure for the final preparations. Please, try attending therapies regularly to get the best results and the combination effect. It will also help with the discomfort caused by surgery. 
+}
+<> Is there anything you want to add or ask?
+->P_CC_0
+
+
+==P_CC_0==
+~speaker = Patient
+- No, I think I am okay Doctor, thank you.
+->D_CC_1
+
+==D_CC_1==
+* [Good, thank you for your cooperation... Have a nice day.]
+~speaker = Doctor
+~ _CC_OSCEPoints += (Thank)
+Good, thank you for your cooperation today, I appreciate it. Have a nice day and I hope you get well soon.
+->EndOfSesssion
+
+==EndOfSesssion==
+~EndConsultation()
+->END
+

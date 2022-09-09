@@ -1,0 +1,66 @@
+//*************************   NSAIDs  *************
+
+LIST negotiatingNSA = ConsultNSA, ShareNSA, ExploreNSA
+
+==D_NSA==
+{
+- !preparedTreatments: 
+~TreatmentValues()
+~preparedTreatments = true
+}
+* [Ask patient's thought for the option]
+~speaker = Doctor
+~negotiatingNSA += (ConsultNSA)
+~_ADMP_OSCEPoints += (Consult)
+What do you think about NSAIDs option?
+~patientDiversionIndex = 0
+->P_NSA
+* [Share your medical view for the option]
+~speaker = Doctor
+~negotiatingNSA += (ShareNSA)
+~_ADMP_OSCEPoints += (Share)
+{lastTreatment != "NSA":Meanwhile, l|L}ooking at with medical perspective, {worstTreatment == NSA:NSAIDs is the worst option you can get especially with its ineffectivity on functionality.|{bestTreatment == NSA:although have some drawbacks like on functionality, NSAIDs is the best option compared to surgery.|NSAIDs isn't the worst option especially with low side effects but it's ineffectivity on the functional improvements can be a real drawback for you.}}
+~patientDiversionIndex = 1
+->P_NSA
+* [Explore pros and cons of the option]
+~speaker = Doctor
+~negotiatingNSA += (ExploreNSA)
+~_ADMP_OSCEPoints += (Explore)
+As for the pros of NSAIDs, it has nearly no side effects and discomfort. So, it's an easy treatment. Can improve pain moderately but has very low functional effects. 
+~patientDiversionIndex = 2
+->P_NSA
+
+==P_NSA==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+It's an effortless treatment, so it could be good but {LIST_COUNT(negotiatingNSA) == 1:there was some drawbacks I guess|functional ineffectiveness looks like a real problem}.  
+- patientDiversionIndex == 1:
+I would prefer to get some improvements on my functionality, {bestTreatment == NSA:but I think I can prefer this over surgery.| so; it depends on the other treatments.}
+- patientDiversionIndex == 2:
+Considering my work, I need some improvement on with the lifting the shoulder issue I guess. 
+}
+{
+- LIST_COUNT(negotiatingNSA) == 3:
+~treatmentsToNegotiate--
+->DONE
+- else:
+~lastTreatment = "NSA"
+->D_NSA
+}
+
+==D_NSA_Eliminate==
+~speaker = Doctor
+- Okay. NSAIDs doesn't suit your expectations while we can choose another option. Let's eliminate this.
+->P_Eliminate
+
+
+
+==D_NSA_Prescribe==
+~speaker = Doctor
+- Okay. Considering your situation, I believe NSAIDs will provide you to best outcome for your inflamation. So, you can take this as a treatment.
+~lastTreatment = "NSA"
+~prescribedTreatment = Prescription(NSA)
+->P_Prescribe
+
+

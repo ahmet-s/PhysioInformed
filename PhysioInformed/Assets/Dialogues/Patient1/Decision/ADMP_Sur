@@ -1,0 +1,68 @@
+//*************************     SURGERY     *************
+
+LIST negotiatingSur = ConsultSur, ShareSur, ExploreSur
+
+==D_Sur==
+{
+- !preparedTreatments: 
+~TreatmentValues()
+~preparedTreatments = true
+}
+* [Ask patient's thought for the option]
+~speaker = Doctor
+~negotiatingSur += (ConsultSur)
+~_ADMP_OSCEPoints += (Consult)
+What do you think about surgery option?
+~patientDiversionIndex = 0
+->P_Sur
+* [Share your medical view for the option]
+~speaker = Doctor
+~negotiatingSur += (ShareSur)
+~_ADMP_OSCEPoints += (Share)
+{LIST_COUNT(negotiatingSur) == 2 && lastTreatment == "Sur":You're right,|In my opinion,} surgery may be an unnecessary operation for your situation while it may not be highly effective and will have discomforting effects which may prevent you from working as you don't want.
+~patientDiversionIndex = 1
+->P_Sur
+* [Explore pros and cons of the option]
+~speaker = Doctor
+~negotiatingSur += (ExploreSur)
+~_ADMP_OSCEPoints += (Explore)
+{LIST_COUNT(negotiatingSur) == 2 && lastTreatment == "Sur":Yes you may right, t|T}o remind you, surgery can provide a moderate decrease in pains and improvement in functionality. The good thing is operation can be done in a day but requires long waiting times and resting. It's also highly discomforting process and probably will have its side effects.
+~patientDiversionIndex = 2
+->P_Sur
+
+==P_Sur==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+{negotiatingSur !? (ShareSur, ExploreSur):As I remember, i|I}t's not a good option. If I'm gonna undergo such procedure, I would rather it to solve my problems. {negotiatingSur ? (ShareSur, ExploreSur):I think I might want skip this one while we have other options, if you also approve.|Maybe we can skip this one?}
+- patientDiversionIndex == 1:
+Yes. It doesn't seem like suits me. {negotiatingSur ? (ConsultSur, ExploreSur):I think I might want skip this one while we have other options, if you also approve.}
+- patientDiversionIndex == 2:
+These doesn't sound good at all. {negotiatingSur ? (ConsultSur, ShareSur):I think I might want skip this one while we have other options, if you also approve.}
+}
+{
+- LIST_COUNT(negotiatingSur) == 3:
+~treatmentsToNegotiate--
+->DONE
+- else:
+~lastTreatment = "Sur"
+->D_Sur
+}
+
+==D_Sur_Eliminate==
+~speaker = Doctor
+- Okay. Surgery doesn't suit your expectations and not strictly necessary in your condition. Let's eliminate this one.
+->P_Eliminate
+
+
+
+==D_Sur_Prescribe==
+~speaker = Doctor
+- Okay. Medically speaking, considering your situation, though it's some drawbacks, I believe surgery will provide you to best outcome. So, you can take this as a treatment.
+~lastTreatment = "Sur"
+~prescribedTreatment = Prescription(Sur)
+->P_Prescribe
+
+
+
+

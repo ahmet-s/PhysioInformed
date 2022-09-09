@@ -1,0 +1,66 @@
+//*************************     ADVICE SHEETS     *************
+
+LIST negotiatingAS = ConsultAS, ShareAS, ExploreAS
+
+==D_AS==
+{
+- !preparedTreatments: 
+~TreatmentValues()
+~preparedTreatments = true
+}
+* [Ask patient's thought for the option]
+~speaker = Doctor
+~negotiatingAS += (ConsultAS)
+~_ADMP_OSCEPoints += (Consult)
+What do you think about advice sheet option?
+~patientDiversionIndex = 0
+->P_AS
+* [Share your medical view for the option]
+~speaker = Doctor
+~negotiatingAS += (ShareAS)
+~_ADMP_OSCEPoints += (Share)
+{lastTreatment != "AS":On the other hand, a|A}dvice sheets is the best option in your situation. If you do them regularly, you can really improve your functional complaints for better and as your muscles strengthened, your pain will decrease gradually and noticeably.
+~patientDiversionIndex = 1
+->P_AS
+* [Explore pros and cons of the option]
+~speaker = Doctor
+~negotiatingAS += (ExploreAS)
+~_ADMP_OSCEPoints += (Explore)
+Looking back at what we reviewed, advice sheets a good chance of decreasing your pain and improving functionality. With no particular side effects and discomfort, there is also no waiting time. However, you need the keep up exercising for 6 months for decent effects but they aren't much time consuming.
+~patientDiversionIndex = 2
+->P_AS
+
+==P_AS==
+~speaker = Patient
+{
+- patientDiversionIndex == 0:
+It seems like a good option as far as you told. {negotiatingAS ? (ShareAS, ExploreAS):I can take this one if you are okay |Back when I got physiotherapy for my back, the doctor also gave me some exercises but I'm not sure if that will be enough on its own.}
+- patientDiversionIndex == 1:
+I understand. You seem like in favor of this option. {negotiatingAS ? (ConsultAS, ExploreAS):I think I can take this one if you are okay. |Maybe, I should take it, then.}
+- patientDiversionIndex == 2:
+I think I can keep that routine as I said. It seems like pros definetely surpasses the cons. {negotiatingAS ? (ConsultAS, ShareAS):I think I can take this one if you are okay.}
+}
+{
+- LIST_COUNT(negotiatingAS) == 3:
+~treatmentsToNegotiate--
+->DONE
+- else:
+~lastTreatment = "AS"
+->D_AS
+}
+
+==D_AS_Eliminate==
+~speaker = Doctor
+- Okay. Advice sheets option is good with its pros but I think another option will suit you better considering everything. Let's eliminate this one.
+->P_Eliminate
+
+==D_AS_Prescribe==
+~speaker = Doctor
+- Okay. Advice sheets seem like the best for your expectations as for as you mentioned and also a good one. You should take this one.
+~lastTreatment = "AS"
+~prescribedTreatment = Prescription(AS)
+->P_Prescribe
+
+
+
+
