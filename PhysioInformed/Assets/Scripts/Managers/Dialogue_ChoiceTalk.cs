@@ -45,7 +45,6 @@ public class Dialogue_ChoiceTalk : MonoBehaviour
         "_Onset", "_Radiation", "_MedHist", "_ExerRelFac", "_WorkCond", "_WorkOut", "_SocHist"
     };
     Dictionary<string, GameObject> namedFocusHistoryOptions = new Dictionary<string, GameObject>();
-    //int numberOfTopicToAsk = 4;
     bool takingFocus = false;
 
 
@@ -111,7 +110,6 @@ public class Dialogue_ChoiceTalk : MonoBehaviour
         currentStory.BindExternalFunction("GoToGTO", () => { GoToOptionTalk(); });
         currentStory.BindExternalFunction("FinalizeSession", () => { EndSession(); });
         currentStory.BindExternalFunction("RecommendTreatment", () => { OpenTreatmentRecommendation(true); });
-        //currentStory.ObserveVariable("recommendedTreatment", (string varName, object newValue) => { UIManager.GetInstance().InGameAchievements("Fast&Furious"); });
         currentStory.ObserveVariable("takingFocusHistory", (string varName, object newValue) => { takingFocus = (bool)newValue; });
         currentStory.BindExternalFunction("TakingFocus", () => { OpenFocusHistoryTopics(true); });
 
@@ -130,24 +128,7 @@ public class Dialogue_ChoiceTalk : MonoBehaviour
         else if (currentStory.currentChoices.Count > 0)  //giving choices to player
         {
             DisplayOptions();
-        }
-        //else if ((bool)currentStory.variablesState["takingFocusHistory"] == true)
-        //{
-        //    if (numberOfTopicToAsk == 0)
-        //    {
-        //        currentStory.variablesState["takingFocusHistory"] = false;
-
-        //        string transition = (string)currentStory.variablesState["transition"];   //the next knot it will go, marked in ink
-        //        currentStory.ChoosePathString(transition);
-
-        //        currentStory.Continue();  //requires two continue for ink, couldn't find why :(
-        //        ContinueDialogue();
-        //    }
-        //    else
-        //    {
-        //        OpenFocusHistoryTopics(true);
-        //    }
-        //}       
+        }      
     }
     
     void DisplayDialogue(string line)
@@ -168,15 +149,11 @@ public class Dialogue_ChoiceTalk : MonoBehaviour
                 ShowPageButtons(false);
                 pageButtonsDisplayed = false;
             }
-
-            //StartCoroutine(TypeEffect(line, patientText));
         }
         else if (speaker == "Doctor")
         {
             docText.text = line;
             DocTextorChoice(true, false);
-
-            //StartCoroutine(TypeEffect(line, docText));
         }
     }
 
@@ -221,7 +198,6 @@ public class Dialogue_ChoiceTalk : MonoBehaviour
         foreach(Choice choice in currentChoices)
         {
             choiceOptionTexts[index].text = choice.text;
-            //StartCoroutine(TypeEffect(choice.text, choiceOptionTexts[index]));
 
             index++;
         }
@@ -269,8 +245,6 @@ public class Dialogue_ChoiceTalk : MonoBehaviour
 
         if (infoGiven["choiceInfo"] == 1)
         {
-            //TutorialManager.GetInstance().ShowTutorial(5);
-
             UIManager.GetInstance().InfoTextUpdate("");
             infoGiven["choiceInfo"] = 2;
         }
@@ -356,11 +330,6 @@ public class Dialogue_ChoiceTalk : MonoBehaviour
     {
         var topicNamesToEliminate = currentStory.variablesState["focusTopicNames"] as Ink.Runtime.InkList;
 
-        ////Substract # of focus info given in patient history from required to ask,
-        ////but make it at least 1
-        //numberOfTopicToAsk -= topicNamesToEliminate.Count;
-        //if (numberOfTopicToAsk <= 0) numberOfTopicToAsk = 1;
-
         //Disable topics given in patient info
         foreach (var item in topicNamesToEliminate)
         {
@@ -371,8 +340,6 @@ public class Dialogue_ChoiceTalk : MonoBehaviour
     //Button listener
     public void ChooseFocusTopic(string topic)
     {
-        //numberOfTopicToAsk--;
-
         currentStory.ChoosePathString(topic);
 
         OpenFocusHistoryTopics(false);    

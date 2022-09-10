@@ -12,29 +12,8 @@ public class FeedbackManager : MonoBehaviour
     InkList[] choiceTalkOSCEs = new InkList[4];
     List<string> _OSCE_Steps = new List<string> { "IS", "IRfC", "BR", "PfSDM", "GTO", "ADMP", "CC", "StrConsul", "Process" };
     [SerializeField] Image[] _OSCE_StepsAchievements;
-    //List<string> _IS_OSCE = new List<string> { "GrInt", "CoC" };
-    //[SerializeField] Image[] _IS_Achievements;
-    //List<string> _IRfC_OSCE = new List<string> { "AskOpen", "TakeFocus" };
-    //[SerializeField] Image[] _IRfC_Achievements;
-    //List<string> _BR_OSCE = new List<string> { "ShowInt", "EstabICE" };
-    //[SerializeField] Image[] _BR_Achievements;
-    //List<string> _PfSDM_OSCE = new List<string> { "Outline", "EstabPlan", "AskPrefQues" };
-    //[SerializeField] Image[] _PfSDM_Achievements;
-
-    ////Option Talk Variables with weights in OSCE
-    //List<string> _GTO_OSCE = new List<string> { "AvoidJar", "SufInfo", "ApplyICE" };
-    //[SerializeField] Image[] _GTO_Achievements;
-
-    ////Decision Talk Variables with weights in OSCE
-    //List<string> _ADMP_OSCE = new List<string> { "ProsCons", "Consult", "Share", "Negotiate" };
-    //[SerializeField] Image[] _ADMP_Achievements;
-    //List<string> _CC_OSCE = new List<string> { "FollowUp"/*, "Thank" */};
-    //[SerializeField] Image[] _CC_Achievements;
-
-    //Additional OSCE Steps with weights in OSCE
-    //List<string> additional_OSCE = new List<string> { "StrConsul", "Process" };
+    
     int totalStrConsulPoints;
-    //[SerializeField] Image[] additional_OSCE_Achievements;
     int missingOSCESteps = 0;
 
 

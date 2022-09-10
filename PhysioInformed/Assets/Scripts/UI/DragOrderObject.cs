@@ -20,6 +20,7 @@ public class DragOrderObject : MonoBehaviour, IPointerEnterHandler, IBeginDragHa
 
         //Create an instance of gameobject to drag alone mouse
         tempObject = Instantiate(Resources.Load<GameObject>($"Preferences/{this.gameObject.name}"), GameObject.FindGameObjectWithTag("RankingPanel").transform, false);
+
         //Make dragged object invisible
         transform.localScale = Vector3.zero; 
     }

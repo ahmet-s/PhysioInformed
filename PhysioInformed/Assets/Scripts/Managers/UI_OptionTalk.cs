@@ -10,7 +10,6 @@ public class UI_OptionTalk : MonoBehaviour
     [SerializeField] GameObject choiceOptionsPanel;
     [SerializeField] GameObject treatmentsPanel;
     [SerializeField] GameObject keypointsPanel;
-    //[SerializeField] GameObject rankingPanel;
     [SerializeField] Transform preferences;
 
     [Header("Layout Elements")]
@@ -186,30 +185,6 @@ public class UI_OptionTalk : MonoBehaviour
         }
     }
 
-    //Listener to endDialogueButton
-    //public void OpenRankingPanel(Button but)
-    //{
-    //    dialoguePanel.SetActive(false);
-    //    choiceOptionsPanel.SetActive(false);
-    //    treatmentsPanel.SetActive(false);
-    //    keypointsPanel.SetActive(false);
-
-    //    TutorialManager.GetInstance().ShowTutorial(10, 10, () => { rankingPanel.SetActive(true); });
-    //    UIManager.GetInstance().InfoTextUpdate("Rank patient's preferences");
-
-    //    but.gameObject.SetActive(false);
-    //}
-
-    //public void RankingPanelOkBut()
-    //{
-    //    RankingResults();
-
-    //    rankingPanel.SetActive(false);
-    //    UIManager.GetInstance().InfoTextUpdate("");        
-
-    //    GameManager.GetInstance().NextStep(2, 1);
-    //}
-
     public void EndGTOButton(Button but)
     {
         dialoguePanel.SetActive(false);
@@ -222,31 +197,4 @@ public class UI_OptionTalk : MonoBehaviour
 
         but.gameObject.SetActive(false);
     }
-
-    //void RankingResults()
-    //{
-    //    List<string> patientPreferences = new List<string>(GameManager.GetInstance().patientPreferences);
-    //    bool rankedTrue = false;
-        
-    //    int index = 0;        
-    //    foreach(Transform child in preferences)
-    //    {
-    //        if(child.name == patientPreferences[index])
-    //        {
-    //            rankedTrue = true;
-    //        }
-    //        else
-    //        {
-    //            rankedTrue = false;
-    //            break;
-    //        }
-    //        index++;
-    //    }
-
-    //    if (rankedTrue)
-    //    {
-    //        UIManager.GetInstance().InGameAchievements("Sharp");
-    //    }
-    //}
-
 }

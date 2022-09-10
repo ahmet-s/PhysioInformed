@@ -145,12 +145,10 @@ public class Dialogue_DecisionTalk : MonoBehaviour
             docText.text = line;
             DocShowChoices(false);
             DocShowText(true);
-            //StartCoroutine(TypeEffect(line, docText));
         }
         else if (speaker == "Patient")
         {
             patientText.text = line;
-            //StartCoroutine(TypeEffect(line, patientText));
         }
     }
 
@@ -166,7 +164,6 @@ public class Dialogue_DecisionTalk : MonoBehaviour
         foreach (Choice choice in currentChoices)
         {
             choiceOptionTexts[index].text = choice.text;
-            //StartCoroutine(TypeEffect(choice.text, choiceOptionTexts[index]));
 
             index++;
         }

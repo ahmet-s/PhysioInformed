@@ -59,7 +59,6 @@ public class UIManager : MonoBehaviour
     void WarningEffect(Image image, Color warningColor)
     {
         Color startColor = image.color;
-        //warningColor = new Color(0.8f, 0.1f, 0.1f);
         float duration = 0.4f;
 
         DOTween.Sequence().Append(image.DOColor(warningColor, duration)).
@@ -140,5 +139,4 @@ public class UIManager : MonoBehaviour
     {
         LevelLoader.GetInstance().LoadNextLevel("Menu");
     }
-
 }

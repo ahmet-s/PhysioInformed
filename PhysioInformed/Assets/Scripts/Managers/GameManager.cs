@@ -16,7 +16,6 @@ public class GameManager : MonoBehaviour
     string treatment = "";
     List<int> selectedTreatments;    
     List<string> preferences = new List<string>() { "PIAT", "RTfT", "PEDT" }; //Assignment for debug, will take data for patients later
-    //int score = 0;
     string timeCompleted;
 
     public static GameManager GetInstance()
@@ -27,10 +26,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        //sessionCount = PlayerPrefs.GetInt("SessionCount");
         sessionCount++;
-        //PlayerPrefs.SetInt("sessionCount", sessionCount);
-        //PlayerPrefs.Save();
     }
 
     public bool gameStarted
@@ -66,12 +62,6 @@ public class GameManager : MonoBehaviour
         set { timeCompleted = value; }
     }
 
-    //public int totalScore
-    //{
-    //    get { return score; }
-    //    set { score = value; }
-    //}
-
     //There are 3 steps in game in orderly
     public void NextStep(int nextSDMStep, int currentSDMStep = -1)
     {
@@ -89,10 +79,7 @@ public class GameManager : MonoBehaviour
         sessionStarted = false;
         sessionOver = true;
 
-        //if (sessionCount == 1) UIManager.GetInstance().InGameAchievements("FirstTrilogy");
-
         treatment = prescribedTreatment;
-        //score = FeedbackManager.GetInstance().TotalScore();
 
         StartCoroutine(WaitToUpdateGameInfo());
 

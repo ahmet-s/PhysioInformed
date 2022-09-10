@@ -5,8 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour
 {
-    //int sessionCount = 0;
-
     //**ID and Password
     [SerializeField] GameObject loginMenu;
     [SerializeField] GameObject loginWarningMessage;
@@ -45,16 +43,6 @@ public class MenuController : MonoBehaviour
 
     private void Start()
     {
-        //if(sessionCount == 0)
-        //{
-        //    loginMenu.SetActive(true);
-        //}
-        //else
-        //{
-        //    mainMenu.SetActive(true);
-        //    currentMenu = mainMenu;
-        //}
-
         if(PlayerPrefs.GetInt("played") == 0)
         {
             mainMenu.SetActive(true);            

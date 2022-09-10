@@ -53,64 +53,6 @@ public class TutorialManager : MonoBehaviour
         return instance;
     }
 
-    //public void ShowTutorial(int untilJsonIndex, int stepForAction = -1, Action x = null, List<GameObject> attentionList = null)
-    //{
-    //    if (totalIndex != untilJsonIndex)  //if not initialized anything yet
-    //    {
-    //        filler = stepForAction;
-    //        fillerAction = x;
-    //        startIndex = index;
-    //        totalIndex = untilJsonIndex;
-    //    }        
-
-    //    //Tutorial type
-    //    if (showTutorials == -1)  // chosing if wants tutorial
-    //    {
-    //        tutorialOption.SetActive(true);
-    //    }
-    //    else if (showTutorials == 1)  //wants tutorial
-    //    {
-    //        tutorialText.text = info.informations[index].text;
-    //        tutorialPanel.transform.localPosition = info.informations[index].position;
-
-    //        tutorialPanel.SetActive(true);
-
-    //        if (index == stepForAction) x.Invoke();
-
-    //        //If doesn't have previous page
-    //        if (index == startIndex)
-    //        {
-    //            progressButtons[0].SetActive(false);
-    //        }
-
-    //        //If doesn't have next page
-    //        if (index == totalIndex)
-    //        {
-    //            progressButtons[1].SetActive(false);
-    //        }
-
-    //        int attentionIndex = 0;
-    //        if(attentionIndex + startIndex == index)
-    //        {
-    //            GetAttention(attentionList[attentionIndex]);
-                
-    //        }
-
-    //    }
-    //    else //0, doesnt want tutorial
-    //    {
-    //        //invoke the action at index
-    //        if (index == stepForAction) x.Invoke();
-
-    //        //Move automatically
-    //        index++;
-    //        if (index <= totalIndex) 
-    //        {
-    //            ShowTutorial(totalIndex, filler, fillerAction);
-    //        }
-    //    }
-    //}
-
      public void ShowTutorial(int untilJsonIndex, int stepForAction = -1, Action x = null, Image[] attentionList = null)
     {
         if (totalIndex != untilJsonIndex)  //if not initialized anything yet
